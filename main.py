@@ -29,6 +29,7 @@ def root():
 
 @app.post("/login_session", status_code=201)
 def login(user: str, password: str, response: Response):
+
     if user == "4dm1n" and password == "NotSoSecurePa$$":
         response.set_cookie(key="session_token", value=app.session_token)
         return {"message": "Zalogowano"}
@@ -37,9 +38,9 @@ def login(user: str, password: str, response: Response):
 
 
 @app.post("/login_token", status_code=201)
-def login_token(*, response: Response, session_token: str = Cookie(None)):
+def login_token(*, session_token: str = Cookie(None)):
     if session_token == app.session_token:
-        return {"message": app.session_token}
+        return {"token": app.session_token}
 
     raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Unauthorised")
 
