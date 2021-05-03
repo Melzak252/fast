@@ -32,15 +32,17 @@ def root():
 
 @app.post("/login_session", status_code=201)
 def login(login: str, password: str, response: Response):
-    if login == "4dm1n" and password == "NotSoSecurePa$$":
+    print(login)
+    print(password)
+    if login and password:
+        if login == "4dm1n" and password == "NotSoSecurePa$$":
 
-        app.access_token = hashlib.sha256(f"{login}{password}{app.secret_key}".encode()).hexdigest()
+            app.access_token = hashlib.sha256(f"{login}{password}{app.secret_key}".encode()).hexdigest()
 
-        response.set_cookie(key="session_token", value=app.access_token)
-        return {"message": "Zalogowano"}
+            response.set_cookie(key="session_token", value=app.access_token)
+            return {"message": "Zalogowano"}
 
-    else:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, )
+    raise HTTPException(status.HTTP_401_UNAUTHORIZED, )
 
 
 @app.post("/login_token", status_code=status.HTTP_201_CREATED)
