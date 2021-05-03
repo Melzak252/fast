@@ -6,6 +6,7 @@ import datetime
 app = FastAPI()
 app.tokens = []
 
+
 def generate_html_response():
     html_content = f"""
     <html>
@@ -13,14 +14,13 @@ def generate_html_response():
             <title>Some HTML in here</title>
         </head>
         <body>
-            <h1>Hello! Today day is {datetime.date.today()}</h1>
+            <h1>Hello! Today date is {datetime.date.today()}</h1>
         </body>
     </html>
     """
     return HTMLResponse(content=html_content, status_code=200)
 
-@app.get("/hello")
+
+@app.get("/hello", response_class=HTMLResponse)
 def root():
     return generate_html_response()
-
-
