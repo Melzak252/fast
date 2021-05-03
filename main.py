@@ -29,18 +29,16 @@ def root():
 
 @app.post("/login_session", status_code=201)
 def login(user: str, password: str, response: Response):
-
     if user == "4dm1n" and password == "NotSoSecurePa$$":
         response.set_cookie(key="session_token", value=app.session_token)
         return {"message": "Zalogowano"}
+    else:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED)
 
-    raise HTTPException(status.HTTP_401_UNAUTHORIZED)
 
-
-@app.post("/login_token", status_code=201)
-def login_token(*, session_token: str = Cookie(None)):
+@app.post("/login_token", status_code=status.HTTP_201_CREATED)
+def login_token(*, response: Response, session_token: str = Cookie("default")):
     if session_token == app.session_token:
         return {"token": app.session_token}
-
-    raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Unauthorised")
-
+    else:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Unauthorised")
