@@ -14,7 +14,7 @@ def generate_html_response():
             <title>Some HTML in here</title>
         </head>
         <body>
-            <h1>Hello! Today date is {datetime.date.today()}</h1>
+            <h1>Hello! Today date is YYYY-MM-DD</h1>
         </body>
     </html>
     """
