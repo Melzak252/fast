@@ -32,14 +32,14 @@ def login(user: str, password: str, response: Response):
     if user == "4dm1n" and password == "NotSoSecurePa$$":
         response.set_cookie(key="session_token", value=app.session_token)
         return {"message": "Zalogowano"}
-    else:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED)
+
+    raise HTTPException(status.HTTP_401_UNAUTHORIZED)
 
 
 @app.post("/login_token", status_code=201)
 def login_token(*, response: Response, session_token: str = Cookie(None)):
     if session_token == app.session_token:
         return {"message": app.session_token}
-    else:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, detail="Unauthorised")
+
+    raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Unauthorised")
 
