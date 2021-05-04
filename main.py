@@ -2,7 +2,7 @@ import hashlib
 from typing import Optional
 
 from fastapi import FastAPI, Request, status, HTTPException, Cookie
-from fastapi.responses import HTMLResponse, Response
+from fastapi.responses import HTMLResponse, Response, JSONResponse
 from pydantic import BaseModel
 import datetime
 
@@ -41,7 +41,7 @@ def login(user: User, response: Response):
     if user.user and user.password:
         if user.user == "4dm1n" and user.password == "NotSoSecurePa$$":
             response.set_cookie(key="session_token", value=app.access_token)
-            return {"message": "Zalogowano"}
+            return JSONResponse(content={"token": "Autoryzowano"}, status_code=201)
         else:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED )
 
@@ -55,7 +55,7 @@ def login_token(user: User = None):
         if user.user is None or user.password is None:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED)
         elif user.user == "4dm1n" and user.password == "NotSoSecurePa$$":
-            return {"token": app.access_token}
+            return JSONResponse(content={"token": app.access_token}, status_code=201)
         else:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED )
     else:
