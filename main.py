@@ -76,13 +76,6 @@ async def login_token(credentials: HTTPBasicCredentials = Depends(security), ):
 
 @app.get("/welcome_session")
 async def welcome_session(format: Optional[str] = None, session_token: Optional[str] = Cookie(None)):
-    if not app.access_session:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect session token",
-            headers={"WWW-Authenticate": "Basic"},
-        )
-
     if not session_token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -107,13 +100,6 @@ async def welcome_session(format: Optional[str] = None, session_token: Optional[
 
 @app.get("/welcome_token")
 async def welcome_token(format: Optional[str] = None, token: Optional[str] = None):
-    if not app.access_token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect session token",
-            headers={"WWW-Authenticate": "Basic"},
-        )
-
     if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -138,12 +124,6 @@ async def welcome_token(format: Optional[str] = None, token: Optional[str] = Non
 
 @app.delete("/logout_session", status_code=status.HTTP_302_FOUND)
 async def logout_session(format: Optional[str] = None, session_token: Optional[str] = Cookie(None)):
-    if not app.access_session:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect session token",
-            headers={"WWW-Authenticate": "Basic"},
-        )
 
     if not session_token:
         raise HTTPException(
