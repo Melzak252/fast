@@ -1,3 +1,4 @@
+import hashlib
 from typing import Optional
 import secrets
 from fastapi import FastAPI, Request, status, HTTPException, Depends, Cookie
@@ -8,10 +9,12 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
 app = FastAPI()
 app.tokens = []
-app.access_token = "AutoryzacjaToken"
-app.access_session = "AutoryzacjaSesja"
+app.access_token = None
+app.access_session = None
 app.password = "NotSoSecurePa$$"
 app.login = "4dm1n"
+app.counter_session = 0
+app.counter_token = 0
 
 security = HTTPBasic()
 
@@ -55,6 +58,8 @@ def check_auth(credentials: HTTPBasicCredentials = Depends(security)):
 async def login_session(credentials: HTTPBasicCredentials = Depends(security), ):
     check_auth(credentials)
     response = Response(status_code=status.HTTP_201_CREATED)
+    app.counter_session += 1
+    app.access_session = hashlib.sha256(f"{app.login}{app.password}{app.counter_session}".encode()).hexdigest()
     response.set_cookie(key="session_token", value=app.access_session)
     return response
 
@@ -63,11 +68,21 @@ async def login_session(credentials: HTTPBasicCredentials = Depends(security), )
 async def login_token(credentials: HTTPBasicCredentials = Depends(security), ):
     check_auth(credentials)
     response = JSONResponse(content={"token": app.access_token}, status_code=status.HTTP_201_CREATED)
+    app.counter_token += 1
+    app.access_token = hashlib.sha256(f"{app.counter_token}{app.login}{app.password}".encode()).hexdigest()
     response.set_cookie(key="session_token", value=app.access_token)
     return response
 
+
 @app.get("/welcome_session")
 async def welcome_session(format: Optional[str] = None, session_token: Optional[str] = Cookie(None)):
+    if not app.access_session:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect session token",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
     if not session_token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -89,8 +104,16 @@ async def welcome_session(format: Optional[str] = None, session_token: Optional[
     else:
         return PlainTextResponse(content="Welcome!")
 
+
 @app.get("/welcome_token")
 async def welcome_token(format: Optional[str] = None, token: Optional[str] = None):
+    if not app.access_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect session token",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
     if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
