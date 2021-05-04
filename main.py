@@ -133,4 +133,4 @@ async def welcome_token(format: Optional[str] = None, token: Optional[str] = Non
     elif format == "html":
         return HTMLResponse(content="<h1>Welcome!</h1>")
     else:
-        return PlainTextResponse(content="Welcome!", )
+        return PlainTextResponse(content="Welcome!" )
