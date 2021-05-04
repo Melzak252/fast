@@ -1,6 +1,6 @@
 import hashlib
 from typing import Optional
-
+import base64
 from fastapi import FastAPI, Request, status, HTTPException, Cookie
 from fastapi.responses import HTMLResponse, Response, JSONResponse
 from pydantic import BaseModel
@@ -38,7 +38,7 @@ def root():
 def login_session(*, user: str = None, password = None, response: Response):
     response.set_cookie(key="session_token", value="Nieautoryzowany")
     if password and user:
-        corr_pass = password == app.password or password == hashlib.sha256(app.password.encode()).hexdigest()
+        corr_pass = password == app.password or password == base64.encode(app.password)
         if corr_pass and user == app.login:
             response.set_cookie(key="session_token", value=app.access_token)
             return JSONResponse(content={"messege": "Zalogowano"}, status_code=status.HTTP_201_CREATED)
@@ -52,7 +52,7 @@ def login_session(*, user: str = None, password = None, response: Response):
 def login_session(*, user: str = None, password: str = None, response: Response):
     response.set_cookie(key="session_token", value="Nieautoryzowany")
     if password and user:
-        corr_pass = password == app.password or password == hashlib.sha256(app.password.encode()).hexdigest()
+        corr_pass = password == app.password or password == base64.encode(app.password)
         if corr_pass and user == app.login:
             response.set_cookie(key="session_token", value=app.access_token)
             return JSONResponse(content={"token": app.access_token}, status_code=status.HTTP_201_CREATED)
