@@ -1,4 +1,3 @@
-import hashlib
 from typing import Optional
 import secrets
 from fastapi import FastAPI, Request, status, HTTPException, Depends, Cookie
@@ -9,10 +8,10 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
 app = FastAPI()
 app.tokens = []
+app.access_token = "AutoryzacjaToken"
+app.access_session = "AutoryzacjaSesja"
 app.password = "NotSoSecurePa$$"
 app.login = "4dm1n"
-app.counter_session = 0
-app.counter_token = 0
 
 security = HTTPBasic()
 
@@ -55,10 +54,8 @@ def check_auth(credentials: HTTPBasicCredentials = Depends(security)):
 @app.post("/login_session", status_code=status.HTTP_201_CREATED)
 async def login_session(credentials: HTTPBasicCredentials = Depends(security), ):
     check_auth(credentials)
+    app.access_session = "AutoryzacjaSesja"
     response = Response(status_code=status.HTTP_201_CREATED)
-    app.counter_session += 1
-    app.access_session = hashlib.sha256(f"{app.counter_session}{app.login}{app.password}".encode()).hexdigest()
-
     response.set_cookie(key="session_token", value=app.access_session)
     return response
 
@@ -66,8 +63,7 @@ async def login_session(credentials: HTTPBasicCredentials = Depends(security), )
 @app.post("/login_token", status_code=status.HTTP_201_CREATED)
 async def login_token(credentials: HTTPBasicCredentials = Depends(security), ):
     check_auth(credentials)
-    app.counter_token += 1
-    app.access_token = hashlib.sha256(f"{app.login}{app.password}{app.counter_token}".encode()).hexdigest()
+    app.access_token = "AutoryzacjaToken"
     response = JSONResponse(content={"token": app.access_token}, status_code=status.HTTP_201_CREATED)
     response.set_cookie(key="session_token", value=app.access_token)
     return response
