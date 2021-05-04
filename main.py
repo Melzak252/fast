@@ -46,9 +46,9 @@ def login_session(user: User, response: Response):
         else:
             response.set_cookie(key="session_token", value="Nieautoryzowany")
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-    else:
-        response.set_cookie(key="session_token", value="Nieautoryzowany")
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+    response.set_cookie(key="session_token", value="Nieautoryzowany")
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
 
 @app.post("/login_token", status_code=status.HTTP_201_CREATED)
@@ -60,6 +60,6 @@ def login_session(user: User, response: Response):
         else:
             response.set_cookie(key="session_token", value="Nieautoryzowany")
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-    else:
-        response.set_cookie(key="session_token", value="Nieautoryzowany")
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+    response.set_cookie(key="session_token", value="Nieautoryzowany")
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
