@@ -43,9 +43,6 @@ def login_session(user: User, response: Response):
         if user.password == app.password and user.login == app.login:
             response.set_cookie(key="session_token", value=app.access_token)
             return {"messege": "Zalgowany"}
-        else:
-            response.set_cookie(key="session_token", value="Nieautoryzowany")
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
     response.set_cookie(key="session_token", value="Nieautoryzowany")
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
@@ -57,9 +54,6 @@ def login_session(user: User, response: Response):
         if user.password == app.password and user.login == app.login:
             response.set_cookie(key="session_token", value=app.access_token)
             return {"token": app.access_token}
-        else:
-            response.set_cookie(key="session_token", value="Nieautoryzowany")
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
     response.set_cookie(key="session_token", value="Nieautoryzowany")
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
