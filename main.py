@@ -35,13 +35,13 @@ def root():
 
 
 @app.post("/login_session", status_code=status.HTTP_201_CREATED)
-def login_session(*, user: str = None, password = None, response: Response):
-    response.set_cookie(key="session_token", value="Nieautoryzowany")
+def login_session(*, user: str = None, password = None):
     if password and user:
         corr_pass = password == app.password or password == base64.encode(app.password)
         if corr_pass and user == app.login:
+            response = JSONResponse(content={"messege": "Zalogowano"}, status_code=status.HTTP_201_CREATED)
             response.set_cookie(key="session_token", value=app.access_token)
-            return JSONResponse(content={"messege": "Zalogowano"}, status_code=status.HTTP_201_CREATED)
+            return response
         else:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     else:
@@ -49,13 +49,13 @@ def login_session(*, user: str = None, password = None, response: Response):
 
 
 @app.post("/login_token", status_code=status.HTTP_201_CREATED)
-def login_session(*, user: str = None, password: str = None, response: Response):
-    response.set_cookie(key="session_token", value="Nieautoryzowany")
+def login_session(*, user: str = None, password: str = None):
     if password and user:
         corr_pass = password == app.password or password == base64.encode(app.password)
         if corr_pass and user == app.login:
+            response = JSONResponse(content={"token": app.access_token}, status_code=status.HTTP_201_CREATED)
             response.set_cookie(key="session_token", value=app.access_token)
-            return JSONResponse(content={"token": app.access_token}, status_code=status.HTTP_201_CREATED)
+            return response
         else:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     else:
