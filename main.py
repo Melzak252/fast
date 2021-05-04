@@ -12,7 +12,7 @@ app.access_token = "AutoryzacjaUzyskana"
 
 
 class User(BaseModel):
-    login: Optional[str] = ""
+    user: Optional[str] = ""
     password: Optional[str] = ""
 
 
