@@ -1,7 +1,7 @@
 import hashlib
 from typing import Optional
 import base64
-from fastapi import FastAPI, Request, status, HTTPException, Cookie
+from fastapi import FastAPI, Request, status, HTTPException, Cookie, Header
 from fastapi.responses import HTMLResponse, Response, JSONResponse
 from pydantic import BaseModel
 import datetime
@@ -13,6 +13,7 @@ app.access_session = "AutoryzacjaSesja"
 app.password = "NotSoSecurePa$$"
 app.login = "4dm1n"
 
+app.basicauth = f"Basic {base64.encode('4dm1n:NotSoSecuePa$$')}"
 
 
 def generate_html_response():
@@ -35,10 +36,17 @@ def root():
 
 
 @app.post("/login_session", status_code=status.HTTP_201_CREATED)
-def login_session(*, user: str = None, password = None):
-    if password and user:
-        corr_pass = password == app.password or password == base64.encode(app.password)
-        if corr_pass and user == app.login:
+def login_session(*, user: str = None, password: str = None, authorization: Optional[str] = Header(None)):
+    if authorization:
+        if authorization == app.basicauth:
+            response = JSONResponse(content={"messege": "Zalogowano"}, status_code=status.HTTP_201_CREATED)
+            response.set_cookie(key="session_token", value=app.access_token)
+            return response
+        else:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    elif user and password:
+        clasic = password == app.password and user == app.login
+        if clasic:
             response = JSONResponse(content={"messege": "Zalogowano"}, status_code=status.HTTP_201_CREATED)
             response.set_cookie(key="session_token", value=app.access_token)
             return response
@@ -49,11 +57,18 @@ def login_session(*, user: str = None, password = None):
 
 
 @app.post("/login_token", status_code=status.HTTP_201_CREATED)
-def login_session(*, user: str = None, password: str = None):
-    if password and user:
-        corr_pass = password == app.password or password == base64.encode(app.password)
-        if corr_pass and user == app.login:
-            response = JSONResponse(content={"token": app.access_token}, status_code=status.HTTP_201_CREATED)
+def login_session(*, user: str = None, password: str = None, authorization: Optional[str] = Header(None)):
+    if authorization:
+        if authorization == app.basicauth:
+            response = JSONResponse(content={"messege": "Zalogowano"}, status_code=status.HTTP_201_CREATED)
+            response.set_cookie(key="session_token", value=app.access_token)
+            return response
+        else:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    elif user and password:
+        clasic = password == app.password and user == app.login
+        if clasic:
+            response = JSONResponse(content={"messege": "Zalogowano"}, status_code=status.HTTP_201_CREATED)
             response.set_cookie(key="session_token", value=app.access_token)
             return response
         else:
