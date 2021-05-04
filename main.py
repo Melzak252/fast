@@ -2,7 +2,7 @@ import hashlib
 from typing import Optional
 import secrets
 from fastapi import FastAPI, Request, status, HTTPException, Depends, Cookie
-from fastapi.responses import HTMLResponse, Response, JSONResponse, PlainTextResponse
+from fastapi.responses import HTMLResponse, Response, JSONResponse, PlainTextResponse, RedirectResponse
 from pydantic import BaseModel
 import datetime
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
@@ -134,3 +134,70 @@ async def welcome_token(format: Optional[str] = None, token: Optional[str] = Non
         return HTMLResponse(content="<h1>Welcome!</h1>")
     else:
         return PlainTextResponse(content="Welcome!", )
+
+
+@app.delete("/logout_session", status_code=status.HTTP_302_FOUND)
+async def logout_session(format: Optional[str] = None, session_token: Optional[str] = Cookie(None)):
+    if not app.access_session:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect session token",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
+    if not session_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect session token",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
+    if session_token != app.access_session:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect session token",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
+    return RedirectResponse(
+        url=app.url_path_for(name="logged_out") + f"?format={format}",
+        status_code=status.HTTP_302_FOUND
+    )
+
+@app.delete("/logout_token", status_code=status.HTTP_302_FOUND)
+async def logout_session(format: Optional[str] = None, token: Optional[str] = None):
+    if not app.access_session:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect session token",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect session token",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
+    if token != app.access_session:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect session token",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
+    return RedirectResponse(
+        url=app.url_path_for(name="logged_out") + f"?format={format}",
+        status_code=status.HTTP_302_FOUND
+    )
+
+
+@app.get("/logged_out", status_code=status.HTTP_200_OK)
+async def logged_out(format: Optional[str] = None):
+    if format == "json":
+        return JSONResponse(content={"message": "Logged out!"})
+    elif format == "html":
+        return HTMLResponse(content="<h1>Logged out!</h1>")
+    else:
+        return PlainTextResponse(content="Logged out!", )
