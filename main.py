@@ -14,8 +14,8 @@ app.login = "4dm1n"
 
 
 class User(BaseModel):
-    user: Optional[str]
-    password: Optional[str]
+    user: Optional[str] = ""
+    password: Optional[str] = ""
 
 
 def generate_html_response():
