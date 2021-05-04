@@ -38,8 +38,8 @@ def root():
 @app.post("/login_session", status_code=status.HTTP_201_CREATED)
 def login(user: User, response: Response):
 
-    if user.login and user.password:
-        if user.login == "4dm1n" and user.password == "NotSoSecurePa$$":
+    if user.user and user.password:
+        if user.user == "4dm1n" and user.password == "NotSoSecurePa$$":
             response.set_cookie(key="session_token", value=app.access_token)
             return {"message": "Zalogowano"}
         else:
@@ -52,9 +52,9 @@ def login(user: User, response: Response):
 @app.post("/login_token", status_code=status.HTTP_201_CREATED)
 def login_token(user: User = None):
     if user:
-        if user.login is None or user.password is None:
+        if user.user is None or user.password is None:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED)
-        elif user.login == "4dm1n" and user.password == "NotSoSecurePa$$":
+        elif user.user == "4dm1n" and user.password == "NotSoSecurePa$$":
             return {"token": app.access_token}
         else:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED )
