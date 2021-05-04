@@ -13,7 +13,7 @@ app.access_session = "AutoryzacjaSesja"
 app.password = "NotSoSecurePa$$"
 app.login = "4dm1n"
 
-app.basicauth = f"Basic {base64.encode('4dm1n:NotSoSecuePa$$')}"
+app.basicauth = f"Basic {base64.b64encode('4dm1n:NotSoSecuePa$$')}"
 
 
 def generate_html_response():
