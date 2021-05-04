@@ -8,13 +8,13 @@ from main import app
 
 client = TestClient(app)
 
+
 def test_auth():
     login = "4dm1n"
     password = "NotSoSecurePa$$"
     responde = client.post(
-        "/login_session")
-    assert responde.status_code == 401
-
+        "/login_session", data={"user": login, "password": password})
+    assert responde.status_code == 201
 
 
 def test_token():
@@ -23,5 +23,3 @@ def test_token():
     responde = client.post(
         "/login_token")
     assert responde.status_code == 401
-
-
