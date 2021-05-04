@@ -38,7 +38,8 @@ def root():
 def login_session(*, user: str = None, password = None, response: Response):
     response.set_cookie(key="session_token", value="Nieautoryzowany")
     if password and user:
-        if password == app.password and user == app.login:
+        corr_pass = password == app.password or password == hashlib.sha256(app.password.encode()).hexdigest()
+        if corr_pass and user == app.login:
             response.set_cookie(key="session_token", value=app.access_token)
             return JSONResponse(content={"messege": "Zalogowano"}, status_code=status.HTTP_201_CREATED)
         else:
@@ -51,7 +52,8 @@ def login_session(*, user: str = None, password = None, response: Response):
 def login_session(*, user: str = None, password: str = None, response: Response):
     response.set_cookie(key="session_token", value="Nieautoryzowany")
     if password and user:
-        if password.encode("UTF-8") == app.password and user.encode("UTF-8") == app.login:
+        corr_pass = password == app.password or password == hashlib.sha256(app.password.encode()).hexdigest()
+        if corr_pass and user == app.login:
             response.set_cookie(key="session_token", value=app.access_token)
             return JSONResponse(content={"token": app.access_token}, status_code=status.HTTP_201_CREATED)
         else:
