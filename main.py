@@ -1,7 +1,7 @@
 from typing import Optional
 import secrets
 from fastapi import FastAPI, Request, status, HTTPException, Depends, Cookie
-from fastapi.responses import HTMLResponse, Response, JSONResponse
+from fastapi.responses import HTMLResponse, Response, JSONResponse, PlainTextResponse
 from pydantic import BaseModel
 import datetime
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
@@ -87,7 +87,7 @@ async def welcome_session(format: Optional[str] = None, session_token: Optional[
     elif format == "html":
         return HTMLResponse(content="<h1>Welcome!</h1>")
     else:
-        return Response(content="Welcome!")
+        return PlainTextResponse(content="Welcome!")
 
 @app.get("/welcome_token")
 async def welcome_token(format: Optional[str] = None, token: Optional[str] = None):
@@ -110,4 +110,4 @@ async def welcome_token(format: Optional[str] = None, token: Optional[str] = Non
     elif format == "html":
         return HTMLResponse(content="<h1>Welcome!</h1>")
     else:
-        return Response(content="Welcome!")
+        return PlainTextResponse(content="Welcome!", )
