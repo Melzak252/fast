@@ -37,7 +37,7 @@ def root():
 
 @app.post("/login_session", status_code=status.HTTP_201_CREATED)
 def login_session(*, user: str = None, password: str = None, request: Request):
-    auth = request.headers["Authorisation"]
+    auth = request.headers["Authorization"] if "Authorization" in request.headers else None
     if auth:
         if "Basic" in auth:
             auth = auth[6:]
@@ -62,7 +62,7 @@ def login_session(*, user: str = None, password: str = None, request: Request):
 
 @app.post("/login_token", status_code=status.HTTP_201_CREATED)
 def login_session(*, user: str = None, password: str = None, request: Request):
-    auth = request.headers["Authorisation"]
+    auth = request.headers["Authorization"] if "Authorization" in request.headers else None
     if auth:
         if "Basic" in auth:
             auth = auth[6:]
