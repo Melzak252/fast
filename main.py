@@ -14,7 +14,7 @@ app.login = "4dm1n"
 
 
 class User(BaseModel):
-    login: Optional[str]
+    user: Optional[str]
     password: Optional[str]
 
 
@@ -39,8 +39,8 @@ def root():
 
 @app.post("/login_session", status_code=status.HTTP_201_CREATED)
 def login_session(user: User, response: Response):
-    if user.password and user.login:
-        if user.password == app.password and user.login == app.login:
+    if user.password and user.user:
+        if user.password == app.password and user.user == app.login:
             response.set_cookie(key="session_token", value=app.access_token)
             return {"messege": "Zalgowany"}
 
@@ -50,8 +50,8 @@ def login_session(user: User, response: Response):
 
 @app.post("/login_token", status_code=status.HTTP_201_CREATED)
 def login_session(user: User, response: Response):
-    if user.password and user.login:
-        if user.password == app.password and user.login == app.login:
+    if user.password and user.user:
+        if user.password == app.password and user.user == app.login:
             response.set_cookie(key="session_token", value=app.access_token)
             return {"token": app.access_token}
 
