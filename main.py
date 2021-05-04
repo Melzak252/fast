@@ -60,7 +60,7 @@ def login_session(*, user: str = None, password: str = None, authorization: Opti
 def login_session(*, user: str = None, password: str = None, authorization: Optional[str] = Header(None)):
     if authorization:
         if authorization == app.basicauth:
-            response = JSONResponse(content={"messege": "Zalogowano"}, status_code=status.HTTP_201_CREATED)
+            response = JSONResponse(content={"token": app.access_token}, status_code=status.HTTP_201_CREATED)
             response.set_cookie(key="session_token", value=app.access_token)
             return response
         else:
@@ -68,7 +68,7 @@ def login_session(*, user: str = None, password: str = None, authorization: Opti
     elif user and password:
         clasic = password == app.password and user == app.login
         if clasic:
-            response = JSONResponse(content={"messege": "Zalogowano"}, status_code=status.HTTP_201_CREATED)
+            response = JSONResponse(content={"token": app.access_token}, status_code=status.HTTP_201_CREATED)
             response.set_cookie(key="session_token", value=app.access_token)
             return response
         else:
