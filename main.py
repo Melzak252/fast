@@ -50,11 +50,12 @@ def login(user: User, response: Response):
 
 
 @app.post("/login_token", status_code=status.HTTP_201_CREATED)
-def login_token(user: User = None):
+def login_token(user: User, response: Response):
     if user:
         if user.user is None or user.password is None:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED)
         elif user.user == "4dm1n" and user.password == "NotSoSecurePa$$":
+            response.set_cookie(key="session_token", value=app.access_token)
             return JSONResponse(content={"token": app.access_token}, status_code=201)
         else:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED )
