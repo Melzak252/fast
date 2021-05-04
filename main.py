@@ -136,8 +136,8 @@ async def logout_session(format: Optional[str] = None, session_token: Optional[s
     app.access_session = None
 
     return RedirectResponse(
-        url=app.url_path_for(name="logged_out") + f"?format={format}",
-        status_code=status.HTTP_302_FOUND
+        url=f"/logged_out?format={format}",
+        status_code=status.HTTP_303_SEE_OTHER
     )
 
 
@@ -159,8 +159,8 @@ async def logout_token(format: Optional[str] = None, token: Optional[str] = None
     app.access_token = None
 
     return RedirectResponse(
-        url=app.url_path_for(name="logged_out") + f"?format={format}",
-        status_code=status.HTTP_302_FOUND
+        url=f"/logged_out?format={format}",
+        status_code=status.HTTP_303_SEE_OTHER
     )
 
 
