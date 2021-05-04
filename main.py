@@ -52,7 +52,7 @@ def check_auth(credentials: HTTPBasicCredentials = Depends(security)):
 
 
 @app.post("/login_session", status_code=status.HTTP_201_CREATED)
-async def login_session(credentials: HTTPBasicCredentials = Depends(security), ):
+async def login_session(credentials: HTTPBasicCredentials = Depends(security)):
     check_auth(credentials)
     app.access_session = "AutoryzacjaSesja"
     response = Response(status_code=status.HTTP_201_CREATED)
@@ -61,7 +61,7 @@ async def login_session(credentials: HTTPBasicCredentials = Depends(security), )
 
 
 @app.post("/login_token", status_code=status.HTTP_201_CREATED)
-async def login_token(credentials: HTTPBasicCredentials = Depends(security), ):
+async def login_token(credentials: HTTPBasicCredentials = Depends(security)):
     check_auth(credentials)
     app.access_token = "AutoryzacjaToken"
     response = JSONResponse(content={"token": app.access_token}, status_code=status.HTTP_201_CREATED)
@@ -133,7 +133,7 @@ async def logout_session(format: Optional[str] = None, session_token: Optional[s
             headers={"WWW-Authenticate": "Basic"},
         )
 
-    del app.access_session
+    app.access_session = None
 
     return RedirectResponse(
         url=app.url_path_for(name="logged_out") + f"?format={format}",
@@ -156,7 +156,7 @@ async def logout_token(format: Optional[str] = None, token: Optional[str] = None
             detail="Incorrect session token",
             headers={"WWW-Authenticate": "Basic"},
         )
-    del app.access_token
+    app.access_token = None
 
     return RedirectResponse(
         url=app.url_path_for(name="logged_out") + f"?format={format}",
@@ -164,11 +164,11 @@ async def logout_token(format: Optional[str] = None, token: Optional[str] = None
     )
 
 
-@app.get("/logged_out")
-async def logged_out(format: Optional[str] = None, ):
+@app.get("/logged_out", status_code=status.HTTP_200_OK)
+async def logged_out(format: Optional[str] = None):
     if format == "json":
-        return JSONResponse(content={"message": "Logged out!"})
+        return JSONResponse(content={"message": "Logged out!"}, status_code=status.HTTP_200_OK)
     elif format == "html":
-        return HTMLResponse(content="<h1>Logged out!</h1>")
+        return HTMLResponse(content="<h1>Logged out!</h1>", status_code=status.HTTP_200_OK)
     else:
-        return PlainTextResponse(content="Logged out!")
+        return PlainTextResponse(content="Logged out!", status_code=status.HTTP_200_OK)
