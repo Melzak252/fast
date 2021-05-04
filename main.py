@@ -24,34 +24,6 @@ class User(BaseModel):
     password: Optional[str] = None
 
 
-def is_valid_token(token, is_session: bool):
-    d = {
-        True: app.access_session,
-        False: app.access_token
-    }
-    token_to_check = d[is_session]
-    if not token_to_check:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect session token",
-            headers={"WWW-Authenticate": "Basic"},
-        )
-
-    if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect session token",
-            headers={"WWW-Authenticate": "Basic"},
-        )
-
-    if token != token_to_check:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect session token",
-            headers={"WWW-Authenticate": "Basic"},
-        )
-
-
 def generate_html_response():
     html_content = f"""
     <html>
@@ -104,7 +76,26 @@ async def login_token(credentials: HTTPBasicCredentials = Depends(security), ):
 
 @app.get("/welcome_session")
 async def welcome_session(format: Optional[str] = None, session_token: Optional[str] = Cookie(None)):
-    is_valid_token(session_token, True)
+    if not app.access_session:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect session token",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
+    if not session_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect session token",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
+    if session_token != app.access_session:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect session token",
+            headers={"WWW-Authenticate": "Basic"},
+        )
 
     if format == "json":
         return JSONResponse(content={"message": "Welcome!"})
@@ -116,7 +107,26 @@ async def welcome_session(format: Optional[str] = None, session_token: Optional[
 
 @app.get("/welcome_token")
 async def welcome_token(format: Optional[str] = None, token: Optional[str] = None):
-    is_valid_token(token, False)
+    if not app.access_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect session token",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect session token",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
+    if token != app.access_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect session token",
+            headers={"WWW-Authenticate": "Basic"},
+        )
 
     if format == "json":
         return JSONResponse(content={"message": "Welcome!"})
@@ -128,23 +138,31 @@ async def welcome_token(format: Optional[str] = None, token: Optional[str] = Non
 
 @app.delete("/logout_session", status_code=status.HTTP_302_FOUND)
 async def logout_session(format: Optional[str] = None, session_token: Optional[str] = Cookie(None)):
-    is_valid_token(session_token, True)
+    if not app.access_session:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect session token",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
+    if not session_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect session token",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
+    if session_token != app.access_session:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect session token",
+            headers={"WWW-Authenticate": "Basic"},
+        )
 
     return RedirectResponse(
         url=app.url_path_for(name="logged_out") + f"?format={format}",
         status_code=status.HTTP_302_FOUND
     )
-
-
-@app.delete("/logout_token", status_code=status.HTTP_302_FOUND)
-async def logout_token(format: Optional[str] = None, token: Optional[str] = None):
-    is_valid_token(token, False)
-
-    return RedirectResponse(
-        url=app.url_path_for(name="logged_out") + f"?format={format}",
-        status_code=status.HTTP_302_FOUND
-    )
-
 
 @app.get("/logged_out", status_code=status.HTTP_200_OK)
 async def logged_out(format: Optional[str] = None):
