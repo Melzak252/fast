@@ -51,6 +51,11 @@ def test_auth():
         "/login_session", json={"password": password})
     assert responde.status_code == 401
 
+    login = "4dm1n1"
+    password = "NotSoSecurePa$$"
+    responde = client.post("/login_token")
+    assert responde.status_code == 401
+
 
 
 
@@ -89,5 +94,10 @@ def test_token():
     login = "4dm1n1"
     password = "NotSoSecurePa$$"
     responde = client.post("/login_token", json={"password": password})
+    assert responde.status_code == 401
+
+    login = "4dm1n1"
+    password = "NotSoSecurePa$$"
+    responde = client.post("/login_token")
     assert responde.status_code == 401
 
