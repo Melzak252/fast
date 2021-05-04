@@ -8,14 +8,11 @@ import datetime
 
 app = FastAPI()
 app.tokens = []
-app.access_token = "AutoryzacjaUzyskana"
+app.access_token = "AutoryzacjaToken"
+app.access_session = "AutoryzacjaSesja"
 app.password = "NotSoSecurePa$$"
 app.login = "4dm1n"
 
-
-class User(BaseModel):
-    user: Optional[str] = ""
-    password: Optional[str] = ""
 
 
 def generate_html_response():
@@ -54,7 +51,7 @@ def login_session(*, user: str = None, password = None, response: Response):
 def login_session(*, user: str = None, password: str = None, response: Response):
     response.set_cookie(key="session_token", value="Nieautoryzowany")
     if password and user:
-        if password == app.password and user == app.login:
+        if password.encode("UTF-8") == app.password and user.encode("UTF-8") == app.login:
             response.set_cookie(key="session_token", value=app.access_token)
             return JSONResponse(content={"token": app.access_token}, status_code=status.HTTP_201_CREATED)
         else:
