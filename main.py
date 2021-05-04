@@ -1,3 +1,4 @@
+import hashlib
 from typing import Optional
 import secrets
 from fastapi import FastAPI, Request, status, HTTPException, Depends, Cookie
@@ -7,12 +8,13 @@ import datetime
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
 app = FastAPI()
-app.tokens = []
-app.access_token = "AutoryzacjaToken"
-app.access_session = "AutoryzacjaSesja"
+app.access_tokens = []
+app.access_sessions = []
+app.secret_key = "KapibaraErystyka"
 app.password = "NotSoSecurePa$$"
 app.login = "4dm1n"
-
+app.counter_session = 0
+app.counter_token = 0
 security = HTTPBasic()
 
 
@@ -54,18 +56,32 @@ def check_auth(credentials: HTTPBasicCredentials = Depends(security)):
 @app.post("/login_session", status_code=status.HTTP_201_CREATED)
 async def login_session(credentials: HTTPBasicCredentials = Depends(security)):
     check_auth(credentials)
-    app.access_session = "AutoryzacjaSesja"
+
+    app.counter_session += 1
+    access_token = hashlib.sha256(f"{app.counter_session}{app.secret_key}{app.login}{app.password}".encode()).hexdigest()
+    app.access_sessions.append(access_token)
+
+    if len(app.access_sessions)>3:
+        app.access_sessions.pop(0)
+
     response = Response(status_code=status.HTTP_201_CREATED)
-    response.set_cookie(key="session_token", value=app.access_session)
+    response.set_cookie(key="session_token", value=access_token)
     return response
 
 
 @app.post("/login_token", status_code=status.HTTP_201_CREATED)
 async def login_token(credentials: HTTPBasicCredentials = Depends(security)):
     check_auth(credentials)
-    app.access_token = "AutoryzacjaToken"
-    response = JSONResponse(content={"token": app.access_token}, status_code=status.HTTP_201_CREATED)
-    response.set_cookie(key="session_token", value=app.access_token)
+
+    app.counter_token += 1
+    access_token = hashlib.sha256(f"{app.secret_key}{app.login}{app.password}{app.counter_token}".encode()).hexdigest()
+    app.access_tokens.append(access_token)
+
+    if len(app.access_tokens) > 3:
+        app.access_tokens.pop(0)
+
+    response = JSONResponse(content={"token": access_token}, status_code=status.HTTP_201_CREATED)
+    response.set_cookie(key="session_token", value=access_token)
     return response
 
 
@@ -78,7 +94,7 @@ async def welcome_session(format: Optional[str] = None, session_token: Optional[
             headers={"WWW-Authenticate": "Basic"},
         )
 
-    if session_token != app.access_session:
+    if session_token not in app.access_sessions:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect session token",
@@ -102,7 +118,7 @@ async def welcome_token(format: Optional[str] = None, token: Optional[str] = Non
             headers={"WWW-Authenticate": "Basic"},
         )
 
-    if token != app.access_token:
+    if token not in app.access_tokens:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect session token",
@@ -126,14 +142,14 @@ async def logout_session(format: Optional[str] = None, session_token: Optional[s
             headers={"WWW-Authenticate": "Basic"},
         )
 
-    if session_token != app.access_session:
+    if session_token not in app.access_sessions:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect session token",
             headers={"WWW-Authenticate": "Basic"},
         )
 
-    app.access_session = None
+    app.access_sessions.remove(session_token)
 
     return RedirectResponse(
         url=f"/logged_out?format={format}",
@@ -150,13 +166,13 @@ async def logout_token(format: Optional[str] = None, token: Optional[str] = None
             headers={"WWW-Authenticate": "Basic"},
         )
 
-    if token != app.access_token:
+    if token not in app.access_tokens:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect session token",
             headers={"WWW-Authenticate": "Basic"},
         )
-    app.access_token = None
+    app.access_tokens.remove(token)
 
     return RedirectResponse(
         url=f"/logged_out?format={format}",
