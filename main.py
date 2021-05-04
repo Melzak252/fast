@@ -150,7 +150,7 @@ async def logout_token(format: Optional[str] = None, token: Optional[str] = None
             headers={"WWW-Authenticate": "Basic"},
         )
 
-    if token != app.access_session:
+    if token != app.access_token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect session token",
