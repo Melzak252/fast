@@ -9,6 +9,8 @@ import datetime
 app = FastAPI()
 app.tokens = []
 app.access_token = "AutoryzacjaUzyskana"
+app.password = "NotSoSecurePa$$"
+app.login = "4dm1n"
 
 
 class User(BaseModel):
@@ -36,28 +38,27 @@ def root():
 
 
 @app.post("/login_session", status_code=status.HTTP_201_CREATED)
-def login(user: User, response: Response):
-
-    if user.user and user.password:
-        if user.user == "4dm1n" and user.password == "NotSoSecurePa$$":
+def login_session(user: User, response: Response):
+    if user.password and user.user:
+        if user.password == app.password and user.user == app.login:
             response.set_cookie(key="session_token", value=app.access_token)
-            return JSONResponse(content={"token": "Autoryzowano"}, status_code=201)
         else:
-            raise HTTPException(status.HTTP_401_UNAUTHORIZED )
-
+            response.set_cookie(key="session_token", value="Nieautoryzowany")
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     else:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED )
+        response.set_cookie(key="session_token", value="Nieautoryzowany")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
 
 @app.post("/login_token", status_code=status.HTTP_201_CREATED)
-def login_token(user: User, response: Response):
-    if user:
-        if user.user is None or user.password is None:
-            raise HTTPException(status.HTTP_401_UNAUTHORIZED)
-        elif user.user == "4dm1n" and user.password == "NotSoSecurePa$$":
+def login_session(user: User, response: Response):
+    if user.password and user.user:
+        if user.password == app.password and user.user == app.login:
             response.set_cookie(key="session_token", value=app.access_token)
-            return JSONResponse(content={"token": app.access_token}, status_code=201)
+            return {"token": app.access_token}
         else:
-            raise HTTPException(status.HTTP_401_UNAUTHORIZED )
+            response.set_cookie(key="session_token", value="Nieautoryzowany")
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     else:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED )
+        response.set_cookie(key="session_token", value="Nieautoryzowany")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
