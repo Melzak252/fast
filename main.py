@@ -13,7 +13,7 @@ app.access_session = "AutoryzacjaSesja"
 app.password = "NotSoSecurePa$$"
 app.login = "4dm1n"
 
-app.basicauth = f"Basic {base64.b64encode('4dm1n:NotSoSecuePa$$')}"
+app.basicauth = base64.b64encode('4dm1n:NotSoSecuePa$$'.encode('ascii'))
 
 
 def generate_html_response():
@@ -36,18 +36,22 @@ def root():
 
 
 @app.post("/login_session", status_code=status.HTTP_201_CREATED)
-def login_session(*, user: str = None, password: str = None, authorization: Optional[str] = Header(None)):
-    if authorization:
-        if authorization == app.basicauth:
-            response = JSONResponse(content={"messege": "Zalogowano"}, status_code=status.HTTP_201_CREATED)
+def login_session(*, user: str = None, password: str = None, request: Request):
+    auth = request.headers["Authorisation"]
+    if auth:
+        if "Basic" in auth:
+            auth = auth[6:]
+
+        if auth == app.basicauth:
+            response = JSONResponse(content={"token": app.access_token}, status_code=status.HTTP_201_CREATED)
             response.set_cookie(key="session_token", value=app.access_token)
             return response
         else:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
     elif user and password:
-        clasic = password == app.password and user == app.login
-        if clasic:
-            response = JSONResponse(content={"messege": "Zalogowano"}, status_code=status.HTTP_201_CREATED)
+        if user == app.login and password == app.password:
+            response = JSONResponse(content={"token": app.access_token}, status_code=status.HTTP_201_CREATED)
             response.set_cookie(key="session_token", value=app.access_token)
             return response
         else:
@@ -57,17 +61,21 @@ def login_session(*, user: str = None, password: str = None, authorization: Opti
 
 
 @app.post("/login_token", status_code=status.HTTP_201_CREATED)
-def login_session(*, user: str = None, password: str = None, authorization: Optional[str] = Header(None)):
-    if authorization:
-        if authorization == app.basicauth:
+def login_session(*, user: str = None, password: str = None, request: Request):
+    auth = request.headers["Authorisation"]
+    if auth:
+        if "Basic" in auth:
+            auth = auth[6:]
+
+        if auth == app.basicauth:
             response = JSONResponse(content={"token": app.access_token}, status_code=status.HTTP_201_CREATED)
             response.set_cookie(key="session_token", value=app.access_token)
             return response
         else:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
     elif user and password:
-        clasic = password == app.password and user == app.login
-        if clasic:
+        if user == app.login and password == app.password:
             response = JSONResponse(content={"token": app.access_token}, status_code=status.HTTP_201_CREATED)
             response.set_cookie(key="session_token", value=app.access_token)
             return response
@@ -75,4 +83,3 @@ def login_session(*, user: str = None, password: str = None, authorization: Opti
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-
