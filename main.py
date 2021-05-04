@@ -86,17 +86,16 @@ async def welcome_session(format: Optional[str] = None, session_token: Optional[
     if session_token != app.access_session:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Session token is not correct",
+            detail="Incorrect session token",
             headers={"WWW-Authenticate": "Basic"},
         )
 
     if format == "json":
-        return JSONResponse(content={"message": "Welcome!"}, status_code=status.HTTP_200_OK)
+        return JSONResponse(content={"message": "Welcome!"})
     elif format == "html":
-        return HTMLResponse(content="<h1>Welcome!</h1>", status_code=status.HTTP_200_OK)
+        return HTMLResponse(content="<h1>Welcome!</h1>")
     else:
-        return PlainTextResponse(content="Welcome!", status_code=status.HTTP_200_OK)
-
+        return Response(content="Welcome!")
 
 @app.get("/welcome_token")
 async def welcome_token(format: Optional[str] = None, token: Optional[str] = None):
@@ -110,16 +109,16 @@ async def welcome_token(format: Optional[str] = None, token: Optional[str] = Non
     if token != app.access_token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Session token is not correct",
+            detail="Incorrect session token",
             headers={"WWW-Authenticate": "Basic"},
         )
 
     if format == "json":
-        return JSONResponse(content={"message": "Welcome!"}, status_code=status.HTTP_200_OK)
+        return JSONResponse(content={"message": "Welcome!"})
     elif format == "html":
-        return HTMLResponse(content="<h1>Welcome!</h1>", status_code=status.HTTP_200_OK)
+        return HTMLResponse(content="<h1>Welcome!</h1>")
     else:
-        return PlainTextResponse(content="Welcome!", status_code=status.HTTP_200_OK)
+        return Response(content="Welcome!")
 
 
 @app.delete("/logout_session", status_code=status.HTTP_302_FOUND)
