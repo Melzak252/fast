@@ -14,8 +14,8 @@ app.login = "4dm1n"
 
 
 class User(BaseModel):
-    user: Optional[str] = ""
-    password: Optional[str] = ""
+    login: Optional[str]
+    password: Optional[str]
 
 
 def generate_html_response():
@@ -39,8 +39,8 @@ def root():
 
 @app.post("/login_session", status_code=status.HTTP_201_CREATED)
 def login_session(user: User, response: Response):
-    if user.password and user.user:
-        if user.password == app.password and user.user == app.login:
+    if user.password and user.login:
+        if user.password == app.password and user.login == app.login:
             response.set_cookie(key="session_token", value=app.access_token)
         else:
             response.set_cookie(key="session_token", value="Nieautoryzowany")
@@ -52,8 +52,8 @@ def login_session(user: User, response: Response):
 
 @app.post("/login_token", status_code=status.HTTP_201_CREATED)
 def login_session(user: User, response: Response):
-    if user.password and user.user:
-        if user.password == app.password and user.user == app.login:
+    if user.password and user.login:
+        if user.password == app.password and user.login == app.login:
             response.set_cookie(key="session_token", value=app.access_token)
             return {"token": app.access_token}
         else:
