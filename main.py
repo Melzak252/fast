@@ -1,4 +1,5 @@
 import hashlib
+from typing import Optional
 
 from fastapi import FastAPI, Request, status, HTTPException, Cookie
 from fastapi.responses import HTMLResponse, Response
@@ -7,8 +8,12 @@ import datetime
 
 app = FastAPI()
 app.tokens = []
-app.secret_key = "AutoryzacjaUzyskana"
-app.access_token = None
+app.access_token = "AutoryzacjaUzyskana"
+
+
+class User(BaseModel):
+    login: Optional[str] = ""
+    password: Optional[str] = ""
 
 
 def generate_html_response():
@@ -30,26 +35,28 @@ def root():
     return generate_html_response()
 
 
-@app.post("/login_session", status_code=201)
-def login(login: str, password: str, response: Response):
-    print(login)
-    print(password)
-    if login and password:
-        if login == "4dm1n" and password == "NotSoSecurePa$$":
+@app.post("/login_session", status_code=status.HTTP_201_CREATED)
+def login(user: User, response: Response):
 
-            app.access_token = hashlib.sha256(f"{login}{password}{app.secret_key}".encode()).hexdigest()
-
+    if user.login and user.password:
+        if user.login == "4dm1n" and user.password == "NotSoSecurePa$$":
             response.set_cookie(key="session_token", value=app.access_token)
             return {"message": "Zalogowano"}
+        else:
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED )
 
-    raise HTTPException(status.HTTP_401_UNAUTHORIZED, )
+    else:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED )
 
 
 @app.post("/login_token", status_code=status.HTTP_201_CREATED)
-def login_token(*, response: Response, session_token: str = Cookie("default")):
-
-    if app.access_token and session_token:
-        if session_token == app.access_token:
+def login_token(user: User = None):
+    if user:
+        if user.login is None or user.password is None:
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED)
+        elif user.login == "4dm1n" and user.password == "NotSoSecurePa$$":
             return {"token": app.access_token}
-
-    raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Unauthorised")
+        else:
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED )
+    else:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED )
